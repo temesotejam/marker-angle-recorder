@@ -1,56 +1,76 @@
 # Marker Angle Recorder
 
-Browser-based marker angle measurement and experiment Session recorder for research measurements.
+研究実験向けの、ブラウザで動く機体角度計測・動画記録・RWLOG対応付けツールです。
 
-## Version 1 goal
+## Version 1 の目的
 
-Treat one experiment as one immutable Session:
+1回の実験を、1つの変更されないSessionとしてまとめます。
 
 ```text
-Camera -> raw video
-       -> marker detection -> angle CSV
-RWLOG  -> compatibility / CRC / passive audit / duration checks
+カメラ -> 生動画
+       -> マーカー認識 -> 角度CSV
+RWLOG  -> 互換性 / CRC / 受動監査 / 時間確認
                                   |
                                   v
                          Session manifest
                                   |
                                   v
-                             one ZIP
+                              1つのZIP
 ```
 
-The main purpose is to prevent video/RWLOG mix-ups while providing an independent camera-based physical-roll reference.
+主目的は、**動画とRWLOGの取り違えを防ぐこと**と、カメラから独立した物理ロール角を確認できるようにすることです。
 
-## Research angle policy
+## マーカー認識方式
 
-The default mode is **Absolute · fixed horizontal**.
+マーカー認識は、新しい方式へ置き換えません。
+
+`video-rwlog-angle-analyzer/src/analysis.js` で使用していた既存の**白丸2点認識・ROI追跡方式**を、そのしきい値を変更せずリアルタイム入力へ移植しています。
+
+処理は次のとおりです。
+
+1. 認識入力を1280×720へ正規化
+2. 初期探索範囲 `[300, 380, 700, 140]` から白丸候補を抽出
+3. 白丸2点の面積・形状・左右距離・上下差からペアを決定
+4. 左右それぞれ `96×90 px` のROIで追跡
+5. 白領域にopening/closingを適用
+6. 前フレーム中心に最も近い候補を継続採用
+7. 見失った場合のみROIを1.8倍へ拡張
+8. 左右マーカー中心を結ぶ線から角度を算出
+
+既存値は `tests/marker.test.mjs` で固定しており、CIで意図せず変更されていないことを確認します。
+
+## 角度基準
+
+研究用の標準は **絶対角度（固定水平基準）** です。
 
 ```text
 camera_line = -atan2(y2-y1, x2-x1)
 absolute_angle = sign * wrapped(camera_line - fixed_horizontal_reference)
 ```
 
-The fixed-horizontal reference is an installation/calibration value and is persisted in the browser. It is **not** recalculated from the body pose for every run.
+固定水平基準はカメラ設置時の校正値としてブラウザに保存します。runごとに機体姿勢から引き直しません。
 
-For passive research measurements, per-run zero subtraction is prohibited. The optional `Relative ZERO · diagnostic only` mode is kept only for visual/diagnostic use and is explicitly recorded as relative in both CSV and manifest.
+受動研究では、**runごとのゼロ引きを行いません**。`相対ZERO（確認用のみ）` は画面確認用として残していますが、CSVとmanifestにも相対モードであることを明示します。
 
-See [`docs/ANGLE_REFERENCE.md`](docs/ANGLE_REFERENCE.md).
+詳しくは [`docs/ANGLE_REFERENCE.md`](docs/ANGLE_REFERENCE.md) を参照してください。
 
-## Measurement workflow
+## 測定手順
 
-1. Open the GitHub Pages app over HTTPS.
-2. Start the USB camera.
-3. Select the marker mode (`Red + Blue` or `White pair`).
-4. Keep `Absolute · fixed horizontal` for research acquisition.
-5. Confirm the persistent fixed-horizontal offset for the camera installation. `0.000 deg` means the image x-axis is the fixed horizontal reference.
-6. Tilt the body in the known positive direction. Use **Invert sign** if necessary, then press **Confirm sign**.
-7. Press **REC**, run the experiment, then press **STOP**.
-8. Drop the RWLOG produced by that run onto the page.
-9. Review SHA-256, CRC, RWLOG version/contract, passive-command audit, duration, duplicate-hash and pair status.
-10. Export the Session ZIP.
+1. GitHub PagesをHTTPSで開く
+2. USBカメラを開始する
+3. 白丸2点が認識されることを確認する
+4. 認識が違う場合は **マーカー再検出** を押す
+5. 研究データ取得では `絶対角度（固定水平基準）` を使う
+6. カメラ設置に対応した固定水平基準を確認する
+7. 既知の正方向へ機体を傾け、必要なら **符号反転** を行い、**符号を確認** を押す
+8. **録画開始** を押して実験し、終了後に **停止** を押す
+9. そのrunで取得したRWLOGを追加する
+10. SHA-256、CRC、RWLOG形式、受動監査、記録時間、重複、ペア判定を確認する
+11. Session ZIPを書き出す
 
-A recorded Session cannot be replaced with a new Session until it has been exported. `CHECK` / `MISMATCH` can be exported only after an explicit manual override. A missing RWLOG can be saved only with the emergency-export checkbox.
+録画済みSessionを出力する前に、新しいSessionで上書きすることはできません。`要確認` / `不一致` の場合は明示的な手動確認が必要です。RWLOGなしで保存する場合は緊急保存を明示します。
 
-## ZIP layout
+## ZIP構成
 
 ```text
 <session-id>.zip
@@ -60,58 +80,58 @@ A recorded Session cannot be replaced with a new Session until it has been expor
 └── <session-id>_manifest.json
 ```
 
-The raw video contains the original camera stream; marker overlays are intentionally not burned into it so that the video can be reprocessed later.
+動画にはマーカー表示を焼き込みません。後から別の認識処理で再解析できるよう、生のカメラ映像を保存します。
 
-The angle CSV records the camera marker-line angle, fixed horizontal reference, absolute angle, optional relative angle, raw active angle, display-filtered angle, marker coordinates, marker distance, validity, Session time and frame media time.
+角度CSVには、カメラ上の機体基準線、固定水平基準、絶対角度、任意の相対角度、生角度、表示用平滑角、左右マーカー座標、マーカー間距離、ROI追跡状態、Session時間、動画フレーム時間を保存します。
 
-## RWLOG v41 current contract
+## 現行RWLOG v41
 
-The current passive V62-derived logger uses RWLOG file format **v41**:
+現在のV62由来受動ロガーはRWLOGファイル形式 **v41** を使用します。
 
-- magic `RWLOG01`
+- magic: `RWLOG01`
 - little-endian
-- 110-byte header
+- 110 byte header
 - UTF-8 JSON metadata
-- 146-byte fixed-length samples
-- 20 ms logging period / 5 ms IMU update period
-- trailing CRC32 covering header + metadata + samples
+- 146 byte 固定長sample
+- log周期 20 ms / IMU更新周期 5 ms
+- 末尾CRC32: header + metadata + samplesを対象
 
-For v41 passive captures, the browser additionally audits the stable packed command prefix across all samples:
+v41受動測定では、全sampleについて次を監査します。
 
 - `motor_cmd_mA == 0`
 - `current_mA_setting == 0`
 - `pulse_active == 0`
 - `pulse_id == 0`
 
-and metadata:
+JSONメタデータについても次を確認します。
 
 - `passive_capture_mode == true`
 - `q_run_mode == "none"`
 
-`roller_actual_current_mA` is deliberately not used as proof of a non-zero command because it is raw Roller telemetry.
+`roller_actual_current_mA` はRollerの生テレメトリなので、非ゼロ指令の証拠としては使いません。
 
-## RWLOG forward compatibility
+## RWLOGの将来互換性
 
-RWLOG compatibility is layered so future format changes do **not** make the recorder unusable:
+将来RWLOG形式が変わっても、Recorder全体が使えなくならない構成にしています。
 
-1. any selected log file can be preserved unchanged in the Session ZIP;
-2. `RWLOG01` common-header fields are read when structurally available;
-3. the shared sample prefix `time_us, t_test_ms` is read opportunistically for timing evidence;
-4. known formats may install a version-specific decoder/auditor;
-5. an unknown future version remains attachable even when detailed decoding is unavailable.
+1. 選択されたログファイルは、解析できなくても原本のままZIPへ保存できる
+2. `RWLOG01` 共通ヘッダが読める場合はversion、run ID、sample数、CRC等を確認する
+3. 共通sample prefix `time_us, t_test_ms` が安全に読める場合は時間確認に使う
+4. 既知versionには詳細decoder / auditorを追加できる
+5. 未知の将来versionでも、詳細decoderがなくてもSessionへ添付できる
 
-Raw video pairing prefers full-log duration derived from `time_us`. `t_test_ms` is retained separately as experiment time because its zero is defined after the start LED signature.
+動画との大まかな時間比較には、原則として `time_us` から得る全ログ時間を使います。`t_test_ms` は開始LEDシグネチャ終了後を0とする実験時間として別に保持します。
 
-See [`docs/RWLOG_COMPATIBILITY.md`](docs/RWLOG_COMPATIBILITY.md).
+詳しくは [`docs/RWLOG_COMPATIBILITY.md`](docs/RWLOG_COMPATIBILITY.md) を参照してください。
 
-## Local-only processing
+## ローカル処理
 
-Camera frames, video, marker measurements, RWLOG inspection and ZIP construction run in the browser. Measurement files are not uploaded by the app. ZIP generation is also local and does not depend on a third-party ZIP service.
+カメラ映像、マーカー認識、動画記録、RWLOG確認、SHA-256、ZIP作成はすべてブラウザ内で行います。測定ファイルを外部サービスへアップロードしません。
 
-## Browser notes
+## 推奨ブラウザ
 
-A Chromium-based desktop browser is recommended for USB-camera selection and MediaRecorder support. GitHub Pages provides the HTTPS secure context required by the camera API.
+USBカメラ選択とMediaRecorderの互換性から、Chromium系デスクトップブラウザを推奨します。GitHub PagesはカメラAPIに必要なHTTPS環境を提供します。
 
-## Development
+## 開発
 
-The app is intentionally build-free: static HTML/CSS plus ES modules. GitHub Actions validates JavaScript syntax and deploys the repository root to GitHub Pages after changes reach `main`.
+ビルド不要の静的HTML/CSS + ES modulesで構成しています。GitHub ActionsでJavaScript構文、RWLOG互換性、既存マーカー認識定数を検証し、`main` 更新後にGitHub Pagesへデプロイします。
