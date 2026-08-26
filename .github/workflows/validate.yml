@@ -20,6 +20,9 @@ jobs:
           node --check src/marker.js
           node --check src/rwlog.js
           node --check src/zip.js
+          node --check tests/rwlog.test.mjs
+      - name: Run RWLOG compatibility tests
+        run: node tests/rwlog.test.mjs
       - name: Check required files
         run: |
           set -eux
