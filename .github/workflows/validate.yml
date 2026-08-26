@@ -20,6 +20,7 @@ jobs:
           node --check src/marker.js
           node --check src/rwlog.js
           node --check src/zip.js
+          node --check src/runtime-stability.js
           node --check tests/rwlog.test.mjs
           node --check tests/marker.test.mjs
       - name: Run RWLOG compatibility tests
@@ -32,14 +33,18 @@ jobs:
           test -f index.html
           test -f styles.css
           test -e .nojekyll
+          test -f src/runtime-stability.js
           test -f docs/ANGLE_REFERENCE.md
           test -f docs/RWLOG_COMPATIBILITY.md
       - name: Check required app contracts
         run: |
           set -eux
+          grep -Fq 'src/runtime-stability.js' index.html
           grep -Fq 'src/app.js' index.html
+          grep -Fq '機体ロール角（生角度）' index.html
           grep -Fq 'absolute-fixed-horizontal' index.html
           grep -Fq '既存の動画解析と同じ白丸2点方式' index.html
+          grep -Fq 'video/webm;codecs=vp8' src/runtime-stability.js
           grep -Fq '# Marker Angle Recorder' README.md
           grep -Fq 'format version: `41`' docs/RWLOG_COMPATIBILITY.md
           ! grep -Fq 'red-blue' index.html
