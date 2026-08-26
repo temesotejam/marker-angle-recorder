@@ -43,7 +43,7 @@
       </div>
 
       <aside class="angle-panel panel">
-        <p class="label">機体ロール角</p>
+        <p class="label">機体ロール角（生角度）</p>
         <div id="angleValue" class="angle-value">---.---°</div>
         <div class="reference-controls">
           <label>角度基準
@@ -76,7 +76,7 @@
     <section class="record-panel panel">
       <div>
         <p class="label">録画</p>
-        <p class="muted">研究用の標準は「機体基準線 − 固定水平基準」の絶対角度です。絶対角度モードではrunごとのゼロ引きを行いません。保存動画には検出表示を焼き込まず、生のカメラ映像を保存します。</p>
+        <p class="muted">研究用の標準は「機体基準線 − 固定水平基準」の絶対角度です。大きな角度表示は生角度を表示し、平滑角は参考値として小さく表示します。保存動画には検出表示を焼き込まず、生のカメラ映像を保存します。</p>
       </div>
       <div class="button-row record-actions">
         <button id="recordButton" type="button" class="record">● 録画開始</button>
@@ -124,6 +124,7 @@
 
     <footer><p>カメラ処理、RWLOG確認、ZIP作成はすべてブラウザ内で行います。測定ファイルを外部へアップロードしません。</p></footer>
   </main>
+  <script type="module" src="./src/runtime-stability.js"></script>
   <script type="module" src="./src/app.js"></script>
 </body>
 </html>
