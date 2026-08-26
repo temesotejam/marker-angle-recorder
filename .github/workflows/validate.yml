@@ -48,3 +48,5 @@ jobs:
           grep -Fq '# Marker Angle Recorder' README.md
           grep -Fq 'format version: `41`' docs/RWLOG_COMPATIBILITY.md
           ! grep -Fq 'red-blue' index.html
+          ! grep -Fq 'warmEncoderForCurrentCamera' src/runtime-stability.js
+          ! grep -Fq 'new NativeMediaRecorder(stream' src/runtime-stability.js
