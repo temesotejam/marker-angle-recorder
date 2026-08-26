@@ -4,27 +4,28 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="color-scheme" content="dark">
-  <title>Marker Angle Session Recorder</title>
+  <title>マーカー角度記録ツール</title>
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
   <main class="page">
     <header class="topbar">
       <div>
-        <p class="eyebrow">Marker Angle Session Recorder</p>
-        <h1>Camera angle + experiment session</h1>
+        <p class="eyebrow">Marker Angle Recorder</p>
+        <h1>機体角度・動画・RWLOG セッション記録</h1>
       </div>
       <div class="session-box">
-        <span>SESSION</span>
+        <span>セッション</span>
         <strong id="sessionId">—</strong>
-        <b id="sessionState" class="ready">READY</b>
+        <b id="sessionState" class="ready">準備完了</b>
       </div>
     </header>
 
     <section class="toolbar panel">
-      <label class="grow">Camera<select id="cameraSelect"></select></label>
-      <button id="startCamera" type="button">Start camera</button>
-      <button id="newSession" type="button" class="secondary">New session</button>
+      <label class="grow">カメラ<select id="cameraSelect"></select></label>
+      <button id="startCamera" type="button">カメラ開始</button>
+      <button id="resetMarker" type="button" class="secondary">マーカー再検出</button>
+      <button id="newSession" type="button" class="secondary">新しいセッション</button>
     </section>
 
     <section class="measurement-grid">
@@ -35,106 +36,93 @@
         </div>
         <canvas id="analysisCanvas" hidden></canvas>
         <div class="video-footer">
-          <span>Marker: <b id="markerState" class="bad">MARKER LOST</b></span>
+          <span>マーカー: <b id="markerState" class="bad">未検出</b></span>
           <span id="recordTimer">0.00 s</span>
-          <span id="quality">0/0 valid</span>
+          <span id="quality">有効 0/0</span>
         </div>
       </div>
 
       <aside class="angle-panel panel">
-        <p class="label">PHYSICAL ROLL</p>
+        <p class="label">機体ロール角</p>
         <div id="angleValue" class="angle-value">---.---°</div>
         <div class="reference-controls">
-          <label>Angle reference
+          <label>角度基準
             <select id="angleMode">
-              <option value="absolute-fixed-horizontal" selected>Absolute · fixed horizontal</option>
-              <option value="relative-zero">Relative ZERO · diagnostic only</option>
+              <option value="absolute-fixed-horizontal" selected>絶対角度（固定水平基準）</option>
+              <option value="relative-zero">相対ZERO（確認用のみ）</option>
             </select>
           </label>
-          <label id="fixedHorizontalRow">Fixed horizontal offset (deg)
+          <label id="fixedHorizontalRow">固定水平基準の角度 [deg]
             <input id="fixedHorizontalDeg" type="number" step="0.001" min="-180" max="180" value="0.000">
           </label>
         </div>
         <dl class="metrics">
-          <div><dt>Raw angle</dt><dd id="rawAngle">---</dd></div>
-          <div><dt>Camera body line</dt><dd id="cameraAngle">---</dd></div>
-          <div><dt>Marker 1</dt><dd id="redState" class="bad">LOST</dd></div>
-          <div><dt>Marker 2</dt><dd id="blueState" class="bad">LOST</dd></div>
-          <div><dt>REFERENCE</dt><dd id="zeroState" class="good">FIXED HORIZON</dd></div>
-          <div><dt>SIGN</dt><dd id="signState" class="bad">NOT CONFIRMED</dd></div>
+          <div><dt>生角度</dt><dd id="rawAngle">---</dd></div>
+          <div><dt>機体基準線</dt><dd id="cameraAngle">---</dd></div>
+          <div><dt>左マーカー</dt><dd id="redState" class="bad">未検出</dd></div>
+          <div><dt>右マーカー</dt><dd id="blueState" class="bad">未検出</dd></div>
+          <div><dt>角度基準</dt><dd id="zeroState" class="good">固定水平</dd></div>
+          <div><dt>符号</dt><dd id="signState" class="bad">未確認</dd></div>
         </dl>
         <p id="signDescription" class="muted"></p>
         <div class="button-row">
-          <button id="zeroButton" type="button" disabled>Set relative ZERO</button>
-          <button id="invertSign" type="button" class="secondary">Invert sign</button>
-          <button id="confirmSign" type="button" class="secondary">Confirm sign</button>
+          <button id="zeroButton" type="button" disabled>相対ZERO設定</button>
+          <button id="invertSign" type="button" class="secondary">符号反転</button>
+          <button id="confirmSign" type="button" class="secondary">符号を確認</button>
         </div>
       </aside>
     </section>
 
     <section class="record-panel panel">
       <div>
-        <p class="label">RECORDING</p>
-        <p class="muted">Research default is absolute angle = body marker line − fixed horizontal reference. No per-run ZERO subtraction is applied in this mode. The saved video is the raw camera stream.</p>
+        <p class="label">録画</p>
+        <p class="muted">研究用の標準は「機体基準線 − 固定水平基準」の絶対角度です。絶対角度モードではrunごとのゼロ引きを行いません。保存動画には検出表示を焼き込まず、生のカメラ映像を保存します。</p>
       </div>
       <div class="button-row record-actions">
-        <button id="recordButton" type="button" class="record">● REC</button>
-        <button id="stopButton" type="button" class="secondary">STOP</button>
+        <button id="recordButton" type="button" class="record">● 録画開始</button>
+        <button id="stopButton" type="button" class="secondary">停止</button>
       </div>
     </section>
 
     <section class="panel">
       <div class="section-head">
         <div>
-          <p class="label">RWLOG PAIRING</p>
-          <h2>Attach the log from this run</h2>
+          <p class="label">RWLOG 対応付け</p>
+          <h2>この測定で取得したRWLOGを追加</h2>
         </div>
-        <span id="pairState" class="bad">NOT READY</span>
+        <span id="pairState" class="bad">未準備</span>
       </div>
       <input id="rwlogInput" type="file" accept=".rwlog,application/octet-stream" hidden>
       <button id="rwlogDrop" type="button" class="drop-zone">
-        <strong>Drop RWLOG here</strong>
-        <span>or click to select a file</span>
+        <strong>RWLOGをここへドロップ</strong>
+        <span>またはクリックしてファイルを選択</span>
       </button>
       <div class="rwlog-summary">
-        <strong id="rwlogName">No RWLOG attached</strong>
+        <strong id="rwlogName">RWLOG未添付</strong>
         <p id="rwlogDetails" class="muted"></p>
-        <p id="pairDetails" class="muted">Record a video and attach an RWLOG.</p>
+        <p id="pairDetails" class="muted">動画を録画したあと、このrunのRWLOGを追加してください。</p>
       </div>
       <div class="checks">
-        <label><input id="pairOverride" type="checkbox"> I checked the pair manually and want to export despite CHECK / MISMATCH.</label>
-        <label><input id="emergencyExport" type="checkbox"> Emergency export without RWLOG.</label>
+        <label><input id="pairOverride" type="checkbox"> 要確認・不一致でも、手動で同じrunだと確認したため出力する</label>
+        <label><input id="emergencyExport" type="checkbox"> RWLOGなしで緊急保存する</label>
       </div>
     </section>
 
     <section class="panel export-panel">
       <div>
-        <p class="label">SESSION EXPORT</p>
-        <p class="muted">One ZIP contains raw video, angle CSV, attached RWLOG, and a manifest with angle-reference policy, hashes, RWLOG compatibility/audit information, and pairing result.</p>
+        <p class="label">セッション出力</p>
+        <p class="muted">生動画、角度CSV、RWLOG、角度基準・SHA-256・RWLOG監査結果を含むmanifestを、1つのZIPにまとめます。</p>
       </div>
-      <button id="exportButton" type="button" class="primary">Export session ZIP</button>
+      <button id="exportButton" type="button" class="primary">セッションZIPを書き出す</button>
       <p id="exportState" class="muted full"></p>
     </section>
 
     <details class="panel settings">
-      <summary>Marker settings</summary>
-      <div class="settings-grid">
-        <label>Marker mode
-          <select id="markerMode">
-            <option value="red-blue">Red + Blue</option>
-            <option value="white-pair">White pair</option>
-          </select>
-        </label>
-        <label>Color min saturation (%)<input id="minSat" type="number" min="0" max="100" value="45"></label>
-        <label>Color min value (%)<input id="minValue" type="number" min="0" max="100" value="30"></label>
-        <label>White max saturation (%)<input id="whiteMaxSat" type="number" min="0" max="100" value="25"></label>
-        <label>White min value (%)<input id="whiteMinValue" type="number" min="0" max="100" value="65"></label>
-        <label>Min component area (analysis px)<input id="minArea" type="number" min="3" max="5000" value="12"></label>
-      </div>
-      <p class="muted">Marker detection runs on a reduced analysis image while recording keeps the original camera stream. Changing marker mode requires sign confirmation again.</p>
+      <summary>マーカー認識方式</summary>
+      <p class="muted">既存の動画解析と同じ白丸2点方式を固定で使用します。初期検出後、左右それぞれをROI追跡し、見失った場合のみ既存仕様どおりROIを1.8倍に拡張します。しきい値や面積条件は変更していません。</p>
     </details>
 
-    <footer><p>All camera processing, RWLOG inspection and ZIP construction are local in the browser. Measurement files are not uploaded by this page.</p></footer>
+    <footer><p>カメラ処理、RWLOG確認、ZIP作成はすべてブラウザ内で行います。測定ファイルを外部へアップロードしません。</p></footer>
   </main>
   <script type="module" src="./src/app.js"></script>
 </body>

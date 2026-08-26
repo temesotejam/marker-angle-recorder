@@ -21,8 +21,11 @@ jobs:
           node --check src/rwlog.js
           node --check src/zip.js
           node --check tests/rwlog.test.mjs
+          node --check tests/marker.test.mjs
       - name: Run RWLOG compatibility tests
         run: node tests/rwlog.test.mjs
+      - name: Run marker compatibility tests
+        run: node tests/marker.test.mjs
       - name: Check required files
         run: |
           set -eux
@@ -36,5 +39,7 @@ jobs:
           set -eux
           grep -Fq 'src/app.js' index.html
           grep -Fq 'absolute-fixed-horizontal' index.html
+          grep -Fq '既存の動画解析と同じ白丸2点方式' index.html
           grep -Fq '# Marker Angle Recorder' README.md
           grep -Fq 'format version: `41`' docs/RWLOG_COMPATIBILITY.md
+          ! grep -Fq 'red-blue' index.html
