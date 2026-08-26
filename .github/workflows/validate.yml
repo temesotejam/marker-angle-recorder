@@ -1,0 +1,40 @@
+name: Validate
+
+on:
+  pull_request:
+  push:
+    branches-ignore: [main]
+
+jobs:
+  static-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check JavaScript syntax
+        run: |
+          set -eux
+          node --check src/app.js
+          node --check src/marker.js
+          node --check src/rwlog.js
+          node --check src/zip.js
+          node --check tests/rwlog.test.mjs
+      - name: Run RWLOG compatibility tests
+        run: node tests/rwlog.test.mjs
+      - name: Check required files
+        run: |
+          set -eux
+          test -f index.html
+          test -f styles.css
+          test -e .nojekyll
+          test -f docs/ANGLE_REFERENCE.md
+          test -f docs/RWLOG_COMPATIBILITY.md
+      - name: Check required app contracts
+        run: |
+          set -eux
+          grep -Fq 'src/app.js' index.html
+          grep -Fq 'absolute-fixed-horizontal' index.html
+          grep -Fq '# Marker Angle Recorder' README.md
+          grep -Fq 'format version: `41`' docs/RWLOG_COMPATIBILITY.md
