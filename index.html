@@ -22,9 +22,7 @@
     </header>
 
     <section class="toolbar panel">
-      <label class="grow">Camera
-        <select id="cameraSelect"></select>
-      </label>
+      <label class="grow">Camera<select id="cameraSelect"></select></label>
       <button id="startCamera" type="button">Start camera</button>
       <button id="newSession" type="button" class="secondary">New session</button>
     </section>
@@ -46,17 +44,28 @@
       <aside class="angle-panel panel">
         <p class="label">PHYSICAL ROLL</p>
         <div id="angleValue" class="angle-value">---.---°</div>
+        <div class="reference-controls">
+          <label>Angle reference
+            <select id="angleMode">
+              <option value="absolute-fixed-horizontal" selected>Absolute · fixed horizontal</option>
+              <option value="relative-zero">Relative ZERO · diagnostic only</option>
+            </select>
+          </label>
+          <label id="fixedHorizontalRow">Fixed horizontal offset (deg)
+            <input id="fixedHorizontalDeg" type="number" step="0.001" min="-180" max="180" value="0.000">
+          </label>
+        </div>
         <dl class="metrics">
-          <div><dt>Raw zeroed</dt><dd id="rawAngle">---</dd></div>
-          <div><dt>Camera line</dt><dd id="cameraAngle">---</dd></div>
+          <div><dt>Raw angle</dt><dd id="rawAngle">---</dd></div>
+          <div><dt>Camera body line</dt><dd id="cameraAngle">---</dd></div>
           <div><dt>Marker 1</dt><dd id="redState" class="bad">LOST</dd></div>
           <div><dt>Marker 2</dt><dd id="blueState" class="bad">LOST</dd></div>
-          <div><dt>ZERO</dt><dd id="zeroState" class="bad">NOT SET</dd></div>
+          <div><dt>REFERENCE</dt><dd id="zeroState" class="good">FIXED HORIZON</dd></div>
           <div><dt>SIGN</dt><dd id="signState" class="bad">NOT CONFIRMED</dd></div>
         </dl>
         <p id="signDescription" class="muted"></p>
         <div class="button-row">
-          <button id="zeroButton" type="button">ZERO</button>
+          <button id="zeroButton" type="button" disabled>Set relative ZERO</button>
           <button id="invertSign" type="button" class="secondary">Invert sign</button>
           <button id="confirmSign" type="button" class="secondary">Confirm sign</button>
         </div>
@@ -66,7 +75,7 @@
     <section class="record-panel panel">
       <div>
         <p class="label">RECORDING</p>
-        <p class="muted">REC requires camera, valid markers, ZERO, and sign confirmation. The saved video is the raw camera stream; overlays are not burned into it.</p>
+        <p class="muted">Research default is absolute angle = body marker line − fixed horizontal reference. No per-run ZERO subtraction is applied in this mode. The saved video is the raw camera stream.</p>
       </div>
       <div class="button-row record-actions">
         <button id="recordButton" type="button" class="record">● REC</button>
@@ -101,7 +110,7 @@
     <section class="panel export-panel">
       <div>
         <p class="label">SESSION EXPORT</p>
-        <p class="muted">One ZIP contains raw video, angle CSV, attached RWLOG, and a manifest with calibration, hashes, compatibility information, and pairing result.</p>
+        <p class="muted">One ZIP contains raw video, angle CSV, attached RWLOG, and a manifest with angle-reference policy, hashes, RWLOG compatibility/audit information, and pairing result.</p>
       </div>
       <button id="exportButton" type="button" class="primary">Export session ZIP</button>
       <p id="exportState" class="muted full"></p>
@@ -122,12 +131,10 @@
         <label>White min value (%)<input id="whiteMinValue" type="number" min="0" max="100" value="65"></label>
         <label>Min component area (analysis px)<input id="minArea" type="number" min="3" max="5000" value="12"></label>
       </div>
-      <p class="muted">Changing marker mode clears ZERO and sign confirmation. Detection runs on a reduced analysis image while recording keeps the camera's original stream.</p>
+      <p class="muted">Marker detection runs on a reduced analysis image while recording keeps the original camera stream. Changing marker mode requires sign confirmation again.</p>
     </details>
 
-    <footer>
-      <p>All camera processing is local in the browser. RWLOG files and video are not uploaded by this page.</p>
-    </footer>
+    <footer><p>All camera processing, RWLOG inspection and ZIP construction are local in the browser. Measurement files are not uploaded by this page.</p></footer>
   </main>
   <script type="module" src="./src/app.js"></script>
 </body>
