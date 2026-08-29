@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { LEGACY_WHITE_MARKER_CONFIG as c } from '../src/marker.js';
+import { LEGACY_WHITE_MARKER_CONFIG as c, MARKER_REACQUIRE_AFTER_LOST_FRAMES } from '../src/marker.js';
 
 assert.deepEqual([...c.searchRegion], [300, 380, 700, 140]);
 assert.equal(c.canonicalWidth, 1280);
@@ -36,4 +36,6 @@ assert.deepEqual(c.tracking, {
   expandedRoiScale: 1.8,
 });
 
-console.log('legacy marker recognition constants: OK');
+assert.equal(MARKER_REACQUIRE_AFTER_LOST_FRAMES, 15);
+
+console.log('legacy marker recognition constants + reacquisition policy: OK');
