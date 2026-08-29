@@ -21,6 +21,7 @@ jobs:
           node --check src/rwlog.js
           node --check src/zip.js
           node --check src/runtime-stability.js
+          node --check src/marker-debug.js
           node --check tests/rwlog.test.mjs
           node --check tests/marker.test.mjs
       - name: Run RWLOG compatibility tests
@@ -32,8 +33,11 @@ jobs:
           set -eux
           test -f index.html
           test -f styles.css
+          test -f debug.html
+          test -f debug.css
           test -e .nojekyll
           test -f src/runtime-stability.js
+          test -f src/marker-debug.js
           test -f docs/ANGLE_REFERENCE.md
           test -f docs/RWLOG_COMPATIBILITY.md
       - name: Check required app contracts
@@ -47,6 +51,10 @@ jobs:
           grep -Fq 'video/webm;codecs=vp8' src/runtime-stability.js
           grep -Fq '# Marker Angle Recorder' README.md
           grep -Fq 'format version: `41`' docs/RWLOG_COMPATIBILITY.md
+          grep -Fq 'src/marker-debug.js' debug.html
+          grep -Fq '初期白判定マスク' debug.html
+          grep -Fq 'モルフォロジー前' debug.html
+          grep -Fq '1.8倍拡張ROI' debug.html
           ! grep -Fq 'red-blue' index.html
           ! grep -Fq 'warmEncoderForCurrentCamera' src/runtime-stability.js
           ! grep -Fq 'new NativeMediaRecorder(stream' src/runtime-stability.js
