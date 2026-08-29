@@ -37,6 +37,10 @@ export const LEGACY_WHITE_MARKER_CONFIG = Object.freeze({
   }),
 });
 
+// 既存の認識条件は一切変えず、長時間見失った場合だけ同じ初期探索へ戻す。
+// 30 fpsで約0.5 s。瞬間的な欠落ではROI追跡を維持し、誤った再初期化を避ける。
+export const MARKER_REACQUIRE_AFTER_LOST_FRAMES = 15;
+
 function whiteMask(rgba, w, h, sMax, vMin) {
   const out = new Uint8Array(w * h);
   for (let p = 0, i = 0; p < out.length; p++, i += 4) {
@@ -185,14 +189,24 @@ function autoWhiteRoisFromCanvas(ctx, fw, fh) {
 export function createLegacyWhiteMarkerTracker() {
   let rois = null;
   let prev = { white_l: null, white_r: null };
+  let lostStreak = 0;
+  let reacquireCount = 0;
+
+  const clearTrackingState = () => {
+    rois = null;
+    prev = { white_l: null, white_r: null };
+    lostStreak = 0;
+  };
 
   return {
-    reset() { rois = null; prev = { white_l: null, white_r: null }; },
+    reset() { clearTrackingState(); },
     get initialized() { return !!rois; },
+    get lostStreak() { return lostStreak; },
+    get reacquireCount() { return reacquireCount; },
     process(ctx, fw, fh) {
       if (!rois) {
         rois = autoWhiteRoisFromCanvas(ctx, fw, fh);
-        if (!rois) return { detected: false, initialized: false, status: 'searching' };
+        if (!rois) return { detected: false, initialized: false, status: 'searching', lostStreak, reacquireCount };
       }
 
       const detections = {}, modes = {};
@@ -213,8 +227,21 @@ export function createLegacyWhiteMarkerTracker() {
       }
 
       const left = detections.white_l, right = detections.white_r;
-      if (!left || !right) return { detected: false, initialized: true, status: 'lost', left, right, modes };
-      return { detected: true, initialized: true, status: 'tracking', left, right, modes, rois };
+      if (!left || !right) {
+        lostStreak++;
+        if (lostStreak >= MARKER_REACQUIRE_AFTER_LOST_FRAMES) {
+          reacquireCount++;
+          rois = autoWhiteRoisFromCanvas(ctx, fw, fh);
+          prev = { white_l: null, white_r: null };
+          lostStreak = 0;
+          if (!rois) return { detected: false, initialized: false, status: 'reacquiring', left, right, modes, lostStreak, reacquireCount };
+          return { detected: false, initialized: true, status: 'reacquired_rois', left, right, modes, rois, lostStreak, reacquireCount };
+        }
+        return { detected: false, initialized: true, status: 'lost', left, right, modes, lostStreak, reacquireCount };
+      }
+
+      lostStreak = 0;
+      return { detected: true, initialized: true, status: 'tracking', left, right, modes, rois, lostStreak, reacquireCount };
     },
   };
 }
