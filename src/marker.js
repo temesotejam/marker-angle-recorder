@@ -1,11 +1,18 @@
+import { getMarkerSearchRegion } from './search-region.js';
+
 // 既存の video-rwlog-angle-analyzer/src/analysis.js で使っていた
 // 白丸2点の認識・追跡方式を、そのしきい値を変えずにリアルタイム入力へ移植する。
 // 認識方式を変える場合は、この互換契約を明示的に更新すること。
+const DEFAULT_WHITE_MARKER_SEARCH_REGION = Object.freeze([300, 380, 700, 140]);
 
 export const LEGACY_WHITE_MARKER_CONFIG = Object.freeze({
   canonicalWidth: 1280,
   canonicalHeight: 720,
-  searchRegion: Object.freeze([300, 380, 700, 140]),
+  // 既定値は従来どおり固定。デバッグページで保存した値がある場合だけ、
+  // 同じ1280x720座標系の探索領域として本番ページにも適用する。
+  get searchRegion() {
+    return getMarkerSearchRegion(DEFAULT_WHITE_MARKER_SEARCH_REGION, 1280, 720);
+  },
   roiWidth: 96,
   roiHeight: 90,
   initial: Object.freeze({
