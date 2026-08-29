@@ -16,6 +16,7 @@ h1 { margin: 0; font-size: clamp(24px, 3vw, 38px); }
 .controls { display: flex; flex-wrap: wrap; align-items: end; gap: 10px; background: #111a28; border: 1px solid #25344a; padding: 12px; border-radius: 14px; margin-bottom: 14px; }
 .controls label { display: grid; gap: 5px; color: #aab9cc; min-width: min(420px, 100%); flex: 1 1 300px; }
 select, button, input[type=number] { min-height: 42px; border-radius: 9px; border: 1px solid #38506f; background: #162235; color: #edf4ff; padding: 8px 11px; }
+input[type=range] { width: 100%; accent-color: #6ea8fe; }
 button { cursor: pointer; }
 button:disabled { opacity: .45; cursor: default; }
 .status { padding: 10px 12px; border-radius: 999px; background: #1a2638; border: 1px solid #31435d; color: #c5d4e9; min-width: 130px; text-align: center; }
@@ -31,6 +32,29 @@ canvas { display: block; width: 100%; height: auto; background: #05080d; border:
 .roi-grid canvas { aspect-ratio: 96 / 90; object-fit: contain; }
 .expanded-grid canvas { aspect-ratio: 173 / 162; object-fit: contain; }
 .final-panel { margin-bottom: 12px; }
+.camera-control { margin-bottom: 14px; padding: 14px; }
+.camera-control-head { display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; }
+.camera-control-head h2 { font-size: 17px; margin-bottom: 5px; }
+.camera-control-head p, .camera-control-message { margin: 0; color: #aab9cc; line-height: 1.55; font-size: 13px; }
+.camera-control-state { border: 1px solid #31435d; border-radius: 999px; padding: 7px 10px; white-space: nowrap; font-size: 12px; color: #c5d4e9; }
+.camera-control-state.good { color: #8ee6ac; }
+.camera-control-state.warn { color: #ffe08a; }
+.camera-control-state.bad { color: #ff9aa7; }
+.camera-live { display: grid; gap: 5px; margin: 12px 0; padding: 10px 12px; background: #0d1521; border: 1px solid #273950; border-radius: 10px; }
+.camera-live strong { font-size: 12px; color: #8fa8c8; }
+.camera-live span { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; overflow-wrap: anywhere; }
+.camera-quick-actions, .camera-control-actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+.camera-quick-actions button:first-child { background: #214b79; border-color: #4c7db3; }
+.camera-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 12px 0; }
+.camera-fields label { display: grid; gap: 6px; color: #aab9cc; font-size: 13px; padding: 10px; border: 1px solid #273950; border-radius: 10px; background: #0d1521; }
+.camera-fields label[hidden] { display: none; }
+.camera-unit { color: #8ee6ac; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+.range-pair { display: grid; grid-template-columns: minmax(120px, 1fr) 120px; gap: 10px; align-items: center; }
+.camera-control-actions button:nth-child(2) { background: #214b79; border-color: #4c7db3; }
+.camera-control-message { min-height: 20px; margin-top: 4px; }
+.camera-details { margin-top: 10px; border-top: 1px solid #273950; padding-top: 10px; }
+.camera-details summary { cursor: pointer; color: #c5d4e9; }
+.camera-details pre { white-space: pre-wrap; overflow-wrap: anywhere; max-height: 360px; overflow: auto; padding: 10px; border-radius: 9px; background: #070c13; color: #aab9cc; font-size: 12px; }
 .region-editor { margin-bottom: 14px; padding: 14px; }
 .region-editor-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 12px; }
 .region-editor-head h2 { font-size: 16px; margin: 0 0 5px; }
@@ -51,9 +75,10 @@ canvas { display: block; width: 100%; height: auto; background: #05080d; border:
 }
 @media (max-width: 680px) {
   .debug-page { width: min(100% - 16px, 1600px); padding-top: 12px; }
-  .debug-header, .region-editor-head { flex-direction: column; }
-  .hero-grid, .roi-grid, .expanded-grid { grid-template-columns: 1fr; }
+  .debug-header, .region-editor-head, .camera-control-head { flex-direction: column; }
+  .hero-grid, .roi-grid, .expanded-grid, .camera-fields { grid-template-columns: 1fr; }
   .region-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .back-link { width: 100%; text-align: center; }
-  .region-state { white-space: normal; }
+  .region-state, .camera-control-state { white-space: normal; }
+  .range-pair { grid-template-columns: 1fr; }
 }

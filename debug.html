@@ -28,6 +28,78 @@
       <span id="statusText" class="status">未開始</span>
     </section>
 
+    <section class="camera-control panel">
+      <div class="camera-control-head">
+        <div>
+          <h2>カメラ露出・明るさの固定</h2>
+          <p>カメラ開始後、その内蔵カメラがブラウザへ公開している設定だけを表示します。「今の明るさで露出を固定」は、現在の露出時間をmanualモードへ引き継ぎます。</p>
+        </div>
+        <span id="cameraControlState" class="camera-control-state">カメラ開始待ち</span>
+      </div>
+
+      <div class="camera-live">
+        <strong>現在のカメラ状態</strong>
+        <span id="cameraLiveSettings">カメラ開始後に表示</span>
+      </div>
+
+      <div class="camera-quick-actions">
+        <button id="freezeExposure" type="button" disabled>今の明るさで露出を固定</button>
+        <button id="autoExposure" type="button" disabled>自動露出に戻す</button>
+        <button id="freezeWhiteBalance" type="button" disabled>今の色でWBを固定</button>
+        <button id="autoWhiteBalance" type="button" disabled>自動WBに戻す</button>
+      </div>
+
+      <div class="camera-fields">
+        <label id="exposureModeField" hidden>露出モード
+          <select id="exposureMode"></select>
+        </label>
+        <label id="exposureTimeField" hidden>露出時間 <span id="exposureTimeHuman" class="camera-unit"></span>
+          <div class="range-pair">
+            <input id="exposureTimeRange" type="range">
+            <input id="exposureTime" type="number">
+          </div>
+        </label>
+        <label id="isoField" hidden>ISO
+          <div class="range-pair">
+            <input id="isoRange" type="range">
+            <input id="iso" type="number">
+          </div>
+        </label>
+        <label id="exposureCompensationField" hidden>露出補正 [EV]
+          <div class="range-pair">
+            <input id="exposureCompensationRange" type="range">
+            <input id="exposureCompensation" type="number">
+          </div>
+        </label>
+        <label id="whiteBalanceModeField" hidden>ホワイトバランス
+          <select id="whiteBalanceMode"></select>
+        </label>
+        <label id="colorTemperatureField" hidden>色温度 [K]
+          <div class="range-pair">
+            <input id="colorTemperatureRange" type="range">
+            <input id="colorTemperature" type="number">
+          </div>
+        </label>
+        <label id="brightnessField" hidden>カメラ明るさ
+          <div class="range-pair">
+            <input id="brightnessRange" type="range">
+            <input id="brightness" type="number">
+          </div>
+        </label>
+      </div>
+
+      <div class="camera-control-actions">
+        <button id="applyCameraControls" type="button" disabled>現在の入力値をカメラへ適用</button>
+        <button id="saveCameraControls" type="button" disabled>このカメラ設定を本番へ保存</button>
+        <button id="clearCameraControls" type="button">本番用の保存設定を削除</button>
+      </div>
+      <p id="cameraControlMessage" class="camera-control-message">露出固定に対応していないカメラでは、対応している項目だけが表示されます。</p>
+      <details class="camera-details">
+        <summary>ブラウザが取得したCapabilities / Settings</summary>
+        <pre id="cameraCapabilityDump">カメラ開始後に表示</pre>
+      </details>
+    </section>
+
     <section class="region-editor panel">
       <div class="region-editor-head">
         <div>
@@ -124,6 +196,8 @@
     <video id="cameraVideo" autoplay muted playsinline hidden></video>
     <canvas id="canonicalCanvas" width="1280" height="720" hidden></canvas>
   </main>
+  <script type="module" src="./src/camera-control-track-bridge.js"></script>
+  <script type="module" src="./src/camera-control-debug.js"></script>
   <script type="module" src="./src/search-region-editor.js"></script>
   <script type="module" src="./src/marker-debug.js"></script>
 </body>
