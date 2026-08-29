@@ -1,0 +1,2 @@
+legacy-white-marker thresholds unchanged
+reacquire after 15 consecutive lost frames
