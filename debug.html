@@ -28,6 +28,28 @@
       <span id="statusText" class="status">未開始</span>
     </section>
 
+    <section class="region-editor panel">
+      <div class="region-editor-head">
+        <div>
+          <h2>初期探索領域の調整</h2>
+          <p>1280×720基準。下の「1. 元画像」の黄色枠は、中をドラッグして移動、辺・四隅をドラッグしてリサイズできます。</p>
+        </div>
+        <span id="regionState" class="region-state"></span>
+      </div>
+      <div class="region-fields">
+        <label>X <input id="regionX" type="number" min="0" max="1279" step="1"></label>
+        <label>Y <input id="regionY" type="number" min="0" max="719" step="1"></label>
+        <label>幅 <input id="regionW" type="number" min="1" max="1280" step="1"></label>
+        <label>高さ <input id="regionH" type="number" min="1" max="720" step="1"></label>
+      </div>
+      <div class="region-actions">
+        <button id="saveRegion" type="button">この範囲を本番へ保存</button>
+        <button id="reloadRegion" type="button">保存値を読み直す</button>
+        <button id="resetRegion" type="button">既定値 [300, 380, 700, 140] に戻す</button>
+      </div>
+      <p class="region-note">保存後は本番ページを再読み込みすると反映されます。本番ページ側には探索領域の編集UIは表示されません。</p>
+    </section>
+
     <section class="hero-grid">
       <article class="panel panel-wide">
         <h2>1. 元画像 + 現在の探索範囲 / ROI / 検出点</h2>
@@ -102,6 +124,7 @@
     <video id="cameraVideo" autoplay muted playsinline hidden></video>
     <canvas id="canonicalCanvas" width="1280" height="720" hidden></canvas>
   </main>
+  <script type="module" src="./src/search-region-editor.js"></script>
   <script type="module" src="./src/marker-debug.js"></script>
 </body>
 </html>
