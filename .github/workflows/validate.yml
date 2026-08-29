@@ -24,15 +24,22 @@ jobs:
           node --check src/marker-debug.js
           node --check src/search-region.js
           node --check src/search-region-editor.js
+          node --check src/camera-control.js
+          node --check src/camera-control-debug.js
+          node --check src/camera-control-track-bridge.js
+          node --check src/camera-control-main.js
           node --check tests/rwlog.test.mjs
           node --check tests/marker.test.mjs
           node --check tests/search-region.test.mjs
+          node --check tests/camera-control.test.mjs
       - name: Run RWLOG compatibility tests
         run: node tests/rwlog.test.mjs
       - name: Run marker compatibility tests
         run: node tests/marker.test.mjs
       - name: Run search region linkage tests
         run: node tests/search-region.test.mjs
+      - name: Run camera control linkage tests
+        run: node tests/camera-control.test.mjs
       - name: Check required files
         run: |
           set -eux
@@ -45,11 +52,16 @@ jobs:
           test -f src/marker-debug.js
           test -f src/search-region.js
           test -f src/search-region-editor.js
+          test -f src/camera-control.js
+          test -f src/camera-control-debug.js
+          test -f src/camera-control-track-bridge.js
+          test -f src/camera-control-main.js
           test -f docs/ANGLE_REFERENCE.md
           test -f docs/RWLOG_COMPATIBILITY.md
       - name: Check required app contracts
         run: |
           set -eux
+          grep -Fq 'src/camera-control-main.js' index.html
           grep -Fq 'src/runtime-stability.js' index.html
           grep -Fq 'src/app.js' index.html
           grep -Fq '機体ロール角（生角度）' index.html
@@ -58,6 +70,9 @@ jobs:
           grep -Fq 'video/webm;codecs=vp8' src/runtime-stability.js
           grep -Fq '# Marker Angle Recorder' README.md
           grep -Fq 'format version: `41`' docs/RWLOG_COMPATIBILITY.md
+          grep -Fq 'src/camera-control-track-bridge.js' debug.html
+          grep -Fq 'src/camera-control-debug.js' debug.html
+          grep -Fq '今の明るさで露出を固定' debug.html
           grep -Fq 'src/marker-debug.js' debug.html
           grep -Fq 'src/search-region-editor.js' debug.html
           grep -Fq 'この範囲を本番へ保存' debug.html
@@ -65,6 +80,8 @@ jobs:
           grep -Fq 'モルフォロジー前' debug.html
           grep -Fq '1.8倍拡張ROI' debug.html
           grep -Fq 'marker-angle-recorder-search-region-v1' src/search-region.js
+          grep -Fq 'marker-angle-recorder-camera-control-v1' src/camera-control.js
+          grep -Fq 'applySavedCameraControls' src/camera-control-main.js
           ! grep -Fq 'red-blue' index.html
           ! grep -Fq 'warmEncoderForCurrentCamera' src/runtime-stability.js
           ! grep -Fq 'new NativeMediaRecorder(stream' src/runtime-stability.js
