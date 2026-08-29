@@ -55,6 +55,23 @@ canvas { display: block; width: 100%; height: auto; background: #05080d; border:
 .camera-details { margin-top: 10px; border-top: 1px solid #273950; padding-top: 10px; }
 .camera-details summary { cursor: pointer; color: #c5d4e9; }
 .camera-details pre { white-space: pre-wrap; overflow-wrap: anywhere; max-height: 360px; overflow: auto; padding: 10px; border-radius: 9px; background: #070c13; color: #aab9cc; font-size: 12px; }
+.marker-ae { margin-bottom: 14px; padding: 14px; border-color: #3a465b; }
+.marker-ae-head { display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; }
+.marker-ae-head h2 { font-size: 17px; margin-bottom: 5px; }
+.marker-ae-head p, .marker-ae-message, .marker-ae-warning { margin: 0; color: #aab9cc; line-height: 1.55; font-size: 13px; }
+.marker-ae-state { border: 1px solid #31435d; border-radius: 999px; padding: 7px 10px; white-space: nowrap; font-size: 12px; color: #c5d4e9; }
+.marker-ae-state.good { color: #8ee6ac; }
+.marker-ae-state.warn { color: #ffe08a; }
+.marker-ae-state.bad { color: #ff9aa7; }
+.marker-ae-live { display: grid; gap: 5px; margin: 12px 0; padding: 10px 12px; background: #0d1521; border: 1px solid #273950; border-radius: 10px; }
+.marker-ae-live strong { font-size: 12px; color: #8fa8c8; }
+.marker-ae-live span { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; overflow-wrap: anywhere; }
+.marker-ae-fields { display: grid; grid-template-columns: repeat(5, minmax(120px, 1fr)); gap: 10px; margin: 12px 0; }
+.marker-ae-fields label { display: grid; gap: 6px; color: #aab9cc; font-size: 13px; padding: 10px; border: 1px solid #273950; border-radius: 10px; background: #0d1521; }
+.marker-ae-actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+.marker-ae-actions button:first-child { background: #245239; border-color: #4f8c68; }
+.marker-ae-message { min-height: 20px; }
+.marker-ae-warning { margin-top: 8px; color: #ffe08a; }
 .region-editor { margin-bottom: 14px; padding: 14px; }
 .region-editor-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 12px; }
 .region-editor-head h2 { font-size: 16px; margin: 0 0 5px; }
@@ -69,16 +86,19 @@ canvas { display: block; width: 100%; height: auto; background: #05080d; border:
 .notes { background: #101722; border-left: 4px solid #58749c; border-radius: 10px; padding: 12px 14px; color: #b8c7d9; line-height: 1.65; }
 .notes p { margin: 0; }
 .notes p + p { margin-top: 8px; }
+@media (max-width: 1200px) {
+  .marker-ae-fields { grid-template-columns: repeat(3, minmax(120px, 1fr)); }
+}
 @media (max-width: 1000px) {
   .roi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .expanded-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 680px) {
   .debug-page { width: min(100% - 16px, 1600px); padding-top: 12px; }
-  .debug-header, .region-editor-head, .camera-control-head { flex-direction: column; }
-  .hero-grid, .roi-grid, .expanded-grid, .camera-fields { grid-template-columns: 1fr; }
+  .debug-header, .region-editor-head, .camera-control-head, .marker-ae-head { flex-direction: column; }
+  .hero-grid, .roi-grid, .expanded-grid, .camera-fields, .marker-ae-fields { grid-template-columns: 1fr; }
   .region-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .back-link { width: 100%; text-align: center; }
-  .region-state, .camera-control-state { white-space: normal; }
+  .region-state, .camera-control-state, .marker-ae-state { white-space: normal; }
   .range-pair { grid-template-columns: 1fr; }
 }
