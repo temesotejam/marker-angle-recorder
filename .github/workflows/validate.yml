@@ -30,11 +30,14 @@ jobs:
           node --check src/camera-control-main.js
           node --check src/marker-auto-exposure.js
           node --check src/marker-auto-exposure-debug.js
+          node --check src/relative-white.js
+          node --check src/relative-white-debug.js
           node --check tests/rwlog.test.mjs
           node --check tests/marker.test.mjs
           node --check tests/search-region.test.mjs
           node --check tests/camera-control.test.mjs
           node --check tests/marker-auto-exposure.test.mjs
+          node --check tests/relative-white.test.mjs
       - name: Run RWLOG compatibility tests
         run: node tests/rwlog.test.mjs
       - name: Run marker compatibility tests
@@ -43,8 +46,10 @@ jobs:
         run: node tests/search-region.test.mjs
       - name: Run camera control linkage tests
         run: node tests/camera-control.test.mjs
-      - name: Run marker local auto exposure tests
+      - name: Run retired marker auto exposure unit tests
         run: node tests/marker-auto-exposure.test.mjs
+      - name: Run relative white trial tests
+        run: node tests/relative-white.test.mjs
       - name: Check required files
         run: |
           set -eux
@@ -57,18 +62,13 @@ jobs:
           test -f src/marker-debug.js
           test -f src/search-region.js
           test -f src/search-region-editor.js
-          test -f src/camera-control.js
-          test -f src/camera-control-debug.js
-          test -f src/camera-control-track-bridge.js
-          test -f src/camera-control-main.js
-          test -f src/marker-auto-exposure.js
-          test -f src/marker-auto-exposure-debug.js
+          test -f src/relative-white.js
+          test -f src/relative-white-debug.js
           test -f docs/ANGLE_REFERENCE.md
           test -f docs/RWLOG_COMPATIBILITY.md
       - name: Check required app contracts
         run: |
           set -eux
-          grep -Fq 'src/camera-control-main.js' index.html
           grep -Fq 'src/runtime-stability.js' index.html
           grep -Fq 'src/app.js' index.html
           grep -Fq '機体ロール角（生角度）' index.html
@@ -77,22 +77,23 @@ jobs:
           grep -Fq 'video/webm;codecs=vp8' src/runtime-stability.js
           grep -Fq '# Marker Angle Recorder' README.md
           grep -Fq 'format version: `41`' docs/RWLOG_COMPATIBILITY.md
-          grep -Fq 'src/camera-control-track-bridge.js' debug.html
-          grep -Fq 'src/camera-control-debug.js' debug.html
-          grep -Fq '今の明るさで露出を固定' debug.html
-          grep -Fq 'src/marker-auto-exposure-debug.js' debug.html
-          grep -Fq 'マーカー基準 自動露出（試験）' debug.html
-          grep -Fq '本番用設定には保存しません' debug.html
           grep -Fq 'src/marker-debug.js' debug.html
           grep -Fq 'src/search-region-editor.js' debug.html
+          grep -Fq 'src/relative-white-debug.js' debug.html
+          grep -Fq '現行 vs 相対白判定（最後の試験）' debug.html
+          grep -Fq '直近300フレームの検出率' debug.html
           grep -Fq 'この範囲を本番へ保存' debug.html
-          grep -Fq '初期白判定マスク' debug.html
-          grep -Fq 'モルフォロジー前' debug.html
+          grep -Fq '初期白判定マスク（現行）' debug.html
           grep -Fq '1.8倍拡張ROI' debug.html
           grep -Fq 'marker-angle-recorder-search-region-v1' src/search-region.js
-          grep -Fq 'marker-angle-recorder-camera-control-v1' src/camera-control.js
-          grep -Fq 'applySavedCameraControls' src/camera-control-main.js
+          ! grep -Fq 'カメラ露出・明るさの固定' debug.html
+          ! grep -Fq 'マーカー基準 自動露出（試験）' debug.html
+          ! grep -Fq 'src/camera-control-debug.js' debug.html
+          ! grep -Fq 'src/camera-control-track-bridge.js' debug.html
+          ! grep -Fq 'src/marker-auto-exposure-debug.js' debug.html
+          ! grep -Fq 'src/camera-control-main.js' index.html
           ! grep -Fq 'marker-auto-exposure' index.html
+          ! grep -Fq 'relative-white' index.html
           ! grep -Fq 'red-blue' index.html
           ! grep -Fq 'warmEncoderForCurrentCamera' src/runtime-stability.js
           ! grep -Fq 'new NativeMediaRecorder(stream' src/runtime-stability.js
