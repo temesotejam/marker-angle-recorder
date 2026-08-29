@@ -13,7 +13,7 @@
       <div>
         <p class="eyebrow">Marker Processing Debug</p>
         <h1>白丸マーカー画像処理デバッグ</h1>
-        <p class="lead">本番ページとは独立した診断ページです。認識条件は本番と同じ値を使い、処理途中の画像をリアルタイム表示します。</p>
+        <p class="lead">本番ページとは独立した診断ページです。現行認識の処理途中画像と、最後の試験として相対白判定を並列比較します。</p>
       </div>
       <a class="back-link" href="./index.html">本番ページへ戻る</a>
     </header>
@@ -28,123 +28,11 @@
       <span id="statusText" class="status">未開始</span>
     </section>
 
-    <section class="camera-control panel">
-      <div class="camera-control-head">
-        <div>
-          <h2>カメラ露出・明るさの固定</h2>
-          <p>カメラ開始後、その内蔵カメラがブラウザへ公開している設定だけを表示します。「今の明るさで露出を固定」は、現在の露出時間をmanualモードへ引き継ぎます。</p>
-        </div>
-        <span id="cameraControlState" class="camera-control-state">カメラ開始待ち</span>
-      </div>
-
-      <div class="camera-live">
-        <strong>現在のカメラ状態</strong>
-        <span id="cameraLiveSettings">カメラ開始後に表示</span>
-      </div>
-
-      <div class="camera-quick-actions">
-        <button id="freezeExposure" type="button" disabled>今の明るさで露出を固定</button>
-        <button id="autoExposure" type="button" disabled>自動露出に戻す</button>
-        <button id="freezeWhiteBalance" type="button" disabled>今の色でWBを固定</button>
-        <button id="autoWhiteBalance" type="button" disabled>自動WBに戻す</button>
-      </div>
-
-      <div class="camera-fields">
-        <label id="exposureModeField" hidden>露出モード
-          <select id="exposureMode"></select>
-        </label>
-        <label id="exposureTimeField" hidden>露出時間 <span id="exposureTimeHuman" class="camera-unit"></span>
-          <div class="range-pair">
-            <input id="exposureTimeRange" type="range">
-            <input id="exposureTime" type="number">
-          </div>
-        </label>
-        <label id="isoField" hidden>ISO
-          <div class="range-pair">
-            <input id="isoRange" type="range">
-            <input id="iso" type="number">
-          </div>
-        </label>
-        <label id="exposureCompensationField" hidden>露出補正 [EV]
-          <div class="range-pair">
-            <input id="exposureCompensationRange" type="range">
-            <input id="exposureCompensation" type="number">
-          </div>
-        </label>
-        <label id="whiteBalanceModeField" hidden>ホワイトバランス
-          <select id="whiteBalanceMode"></select>
-        </label>
-        <label id="colorTemperatureField" hidden>色温度 [K]
-          <div class="range-pair">
-            <input id="colorTemperatureRange" type="range">
-            <input id="colorTemperature" type="number">
-          </div>
-        </label>
-        <label id="brightnessField" hidden>カメラ明るさ
-          <div class="range-pair">
-            <input id="brightnessRange" type="range">
-            <input id="brightness" type="number">
-          </div>
-        </label>
-      </div>
-
-      <div class="camera-control-actions">
-        <button id="applyCameraControls" type="button" disabled>現在の入力値をカメラへ適用</button>
-        <button id="saveCameraControls" type="button" disabled>このカメラ設定を本番へ保存</button>
-        <button id="clearCameraControls" type="button">本番用の保存設定を削除</button>
-      </div>
-      <p id="cameraControlMessage" class="camera-control-message">露出固定に対応していないカメラでは、対応している項目だけが表示されます。</p>
-      <details class="camera-details">
-        <summary>ブラウザが取得したCapabilities / Settings</summary>
-        <pre id="cameraCapabilityDump">カメラ開始後に表示</pre>
-      </details>
-    </section>
-
-    <section class="marker-ae panel">
-      <div class="marker-ae-head">
-        <div>
-          <h2>マーカー基準 自動露出（試験）</h2>
-          <p>画面全体ではなく、左右の追跡ROIにある白マーカーの明るさだけを見て露出時間を小さく調整します。今回はデバッグページだけで試し、本番用設定には保存しません。</p>
-        </div>
-        <span id="markerAeState" class="marker-ae-state">カメラ開始待ち</span>
-      </div>
-
-      <div class="marker-ae-live">
-        <strong>局所AEの観測値</strong>
-        <span id="markerAeLive">カメラ開始後に表示</span>
-      </div>
-
-      <div class="marker-ae-fields">
-        <label>目標マーカー明るさ V
-          <input id="markerAeTargetV" type="number" min="1" max="255" step="1" value="200">
-        </label>
-        <label>デッドバンド ±V
-          <input id="markerAeDeadbandV" type="number" min="0" max="100" step="1" value="12">
-        </label>
-        <label>調整間隔 [ms]
-          <input id="markerAeIntervalMs" type="number" min="100" max="2000" step="50" value="250">
-        </label>
-        <label>1回の最大変更 [%]
-          <input id="markerAeMaxStepPercent" type="number" min="0.5" max="50" step="0.5" value="8">
-        </label>
-        <label>最大露出時間 [ms]
-          <input id="markerAeMaxExposureMs" type="number" min="0.1" max="100" step="0.1" value="10">
-        </label>
-      </div>
-
-      <div class="marker-ae-actions">
-        <button id="startMarkerAe" type="button" disabled>マーカー基準AEを開始</button>
-        <button id="stopMarkerAe" type="button" disabled>停止して現在露出を保持</button>
-      </div>
-      <p id="markerAeMessage" class="marker-ae-message">左右マーカーが「追跡中」になってから開始します。ISOは自動変更せず、露出時間だけを調整します。</p>
-      <p class="marker-ae-warning">試験モードです。「このカメラ設定を本番へ保存」とは独立しており、この局所AE自体は本番ページへ適用されません。</p>
-    </section>
-
     <section class="region-editor panel">
       <div class="region-editor-head">
         <div>
           <h2>初期探索領域の調整</h2>
-          <p>1280×720基準。下の「1. 元画像」の黄色枠は、中をドラッグして移動、辺・四隅をドラッグしてリサイズできます。</p>
+          <p>1280×720基準。「1. 元画像」の黄色枠は、中をドラッグして移動、辺・四隅をドラッグしてリサイズできます。</p>
         </div>
         <span id="regionState" class="region-state"></span>
       </div>
@@ -162,6 +50,48 @@
       <p class="region-note">保存後は本番ページを再読み込みすると反映されます。本番ページ側には探索領域の編集UIは表示されません。</p>
     </section>
 
+    <section class="relative-trial panel">
+      <div class="relative-head">
+        <div>
+          <h2>現行 vs 相対白判定（最後の試験）</h2>
+          <p>彩度・面積・形状・左右ペア条件は現行と同じまま、明るさ条件だけを「絶対V」から「周囲平均よりどれだけ明るいか」へ置き換えて並列比較します。本番認識は変更しません。</p>
+        </div>
+        <div class="compare-badges">
+          <span>現行 <b id="fixedCompareState" class="compare-badge">未判定</b></span>
+          <span>相対 <b id="relativeCompareState" class="compare-badge">未判定</b></span>
+        </div>
+      </div>
+      <div class="relative-controls">
+        <label>周囲との差 ΔV
+          <input id="relativeDeltaV" type="number" min="1" max="120" step="1" value="28">
+        </label>
+        <label>周囲平均の半径 [px]
+          <input id="relativeLocalRadius" type="number" min="2" max="60" step="1" value="20">
+        </label>
+        <button id="resetRelativeTrial" type="button">相対方式をリセット</button>
+      </div>
+      <p id="relativeCompareStats" class="relative-stats">比較データ待ち</p>
+      <div class="relative-grid">
+        <article class="compare-panel">
+          <h3>相対：初期探索マスク</h3>
+          <canvas id="relativeInitialMaskCanvas" width="700" height="140"></canvas>
+        </article>
+        <article class="compare-panel">
+          <h3>相対：左追跡マスク</h3>
+          <canvas id="relativeLeftMaskCanvas" width="96" height="90"></canvas>
+        </article>
+        <article class="compare-panel">
+          <h3>相対：右追跡マスク</h3>
+          <canvas id="relativeRightMaskCanvas" width="96" height="90"></canvas>
+        </article>
+        <article class="compare-panel">
+          <h3>相対：最終検出結果</h3>
+          <canvas id="relativeFinalCanvas" width="1280" height="720"></canvas>
+        </article>
+      </div>
+      <p class="relative-note">注目点は「現行が未検出なのに相対だけ検出する時間が増えるか」です。直近300フレームの検出率も自動集計します。</p>
+    </section>
+
     <section class="hero-grid">
       <article class="panel panel-wide">
         <h2>1. 元画像 + 現在の探索範囲 / ROI / 検出点</h2>
@@ -172,7 +102,7 @@
         <canvas id="searchCropCanvas" width="700" height="140"></canvas>
       </article>
       <article class="panel">
-        <h2>3. 初期白判定マスク</h2>
+        <h2>3. 初期白判定マスク（現行）</h2>
         <canvas id="searchMaskCanvas" width="700" height="140"></canvas>
       </article>
     </section>
@@ -183,7 +113,7 @@
         <canvas id="leftRoiCanvas" width="96" height="90"></canvas>
       </article>
       <article class="panel">
-        <h2>5. 左ROI 白判定（モルフォロジー前）</h2>
+        <h2>5. 左ROI 白判定（現行・モルフォロジー前）</h2>
         <canvas id="leftRawMaskCanvas" width="96" height="90"></canvas>
       </article>
       <article class="panel">
@@ -195,7 +125,7 @@
         <canvas id="rightRoiCanvas" width="96" height="90"></canvas>
       </article>
       <article class="panel">
-        <h2>8. 右ROI 白判定（モルフォロジー前）</h2>
+        <h2>8. 右ROI 白判定（現行・モルフォロジー前）</h2>
         <canvas id="rightRawMaskCanvas" width="96" height="90"></canvas>
       </article>
       <article class="panel">
@@ -224,22 +154,20 @@
     </section>
 
     <section class="panel final-panel">
-      <h2>14. 最終検出結果</h2>
+      <h2>14. 最終検出結果（現行）</h2>
       <canvas id="finalCanvas" width="1280" height="720"></canvas>
     </section>
 
     <section class="notes">
-      <p><strong>見るポイント:</strong> 白丸が「3」で既に消えるなら白判定条件、「5/8」で見えるのに「6/9」で崩れるならモルフォロジー、「4/7」に白丸自体が入っていないならROI追跡、「10/12」にも入っていないなら追跡から大きく外れています。</p>
-      <p>このページは録画・RWLOG・Session処理を行いません。本番計測の流れには影響しません。</p>
+      <p><strong>見るポイント:</strong> 現行マスクだけが暗さで消え、相対マスクでは白丸が残るなら、絶対Vしきい値が環境変動の主因である可能性が高まります。</p>
+      <p>相対方式はデバッグ専用の並列試験です。録画・RWLOG・Session・本番のマーカー認識には影響しません。</p>
     </section>
 
     <video id="cameraVideo" autoplay muted playsinline hidden></video>
     <canvas id="canonicalCanvas" width="1280" height="720" hidden></canvas>
   </main>
-  <script type="module" src="./src/camera-control-track-bridge.js"></script>
-  <script type="module" src="./src/camera-control-debug.js"></script>
-  <script type="module" src="./src/marker-auto-exposure-debug.js"></script>
   <script type="module" src="./src/search-region-editor.js"></script>
   <script type="module" src="./src/marker-debug.js"></script>
+  <script type="module" src="./src/relative-white-debug.js"></script>
 </body>
 </html>
