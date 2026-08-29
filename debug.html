@@ -100,6 +100,46 @@
       </details>
     </section>
 
+    <section class="marker-ae panel">
+      <div class="marker-ae-head">
+        <div>
+          <h2>マーカー基準 自動露出（試験）</h2>
+          <p>画面全体ではなく、左右の追跡ROIにある白マーカーの明るさだけを見て露出時間を小さく調整します。今回はデバッグページだけで試し、本番用設定には保存しません。</p>
+        </div>
+        <span id="markerAeState" class="marker-ae-state">カメラ開始待ち</span>
+      </div>
+
+      <div class="marker-ae-live">
+        <strong>局所AEの観測値</strong>
+        <span id="markerAeLive">カメラ開始後に表示</span>
+      </div>
+
+      <div class="marker-ae-fields">
+        <label>目標マーカー明るさ V
+          <input id="markerAeTargetV" type="number" min="1" max="255" step="1" value="200">
+        </label>
+        <label>デッドバンド ±V
+          <input id="markerAeDeadbandV" type="number" min="0" max="100" step="1" value="12">
+        </label>
+        <label>調整間隔 [ms]
+          <input id="markerAeIntervalMs" type="number" min="100" max="2000" step="50" value="250">
+        </label>
+        <label>1回の最大変更 [%]
+          <input id="markerAeMaxStepPercent" type="number" min="0.5" max="50" step="0.5" value="8">
+        </label>
+        <label>最大露出時間 [ms]
+          <input id="markerAeMaxExposureMs" type="number" min="0.1" max="100" step="0.1" value="10">
+        </label>
+      </div>
+
+      <div class="marker-ae-actions">
+        <button id="startMarkerAe" type="button" disabled>マーカー基準AEを開始</button>
+        <button id="stopMarkerAe" type="button" disabled>停止して現在露出を保持</button>
+      </div>
+      <p id="markerAeMessage" class="marker-ae-message">左右マーカーが「追跡中」になってから開始します。ISOは自動変更せず、露出時間だけを調整します。</p>
+      <p class="marker-ae-warning">試験モードです。「このカメラ設定を本番へ保存」とは独立しており、この局所AE自体は本番ページへ適用されません。</p>
+    </section>
+
     <section class="region-editor panel">
       <div class="region-editor-head">
         <div>
@@ -198,6 +238,7 @@
   </main>
   <script type="module" src="./src/camera-control-track-bridge.js"></script>
   <script type="module" src="./src/camera-control-debug.js"></script>
+  <script type="module" src="./src/marker-auto-exposure-debug.js"></script>
   <script type="module" src="./src/search-region-editor.js"></script>
   <script type="module" src="./src/marker-debug.js"></script>
 </body>
