@@ -1,4 +1,5 @@
 export const MARKER_SEARCH_REGION_STORAGE_KEY = 'marker-angle-recorder-search-region-v1';
+export const DEFAULT_MARKER_SEARCH_REGION = Object.freeze([300, 380, 700, 140]);
 
 const PREVIEW_KEY = '__markerAngleRecorderSearchRegionPreviewV1';
 
@@ -7,7 +8,7 @@ export function clampMarkerSearchRegion(region, frameWidth = 1280, frameHeight =
     ? region
     : [region?.x, region?.y, region?.w ?? region?.width, region?.h ?? region?.height];
   let [x, y, w, h] = src.map(Number);
-  if (![x, y, w, h].every(Number.isFinite)) [x, y, w, h] = [0, 0, frameWidth, frameHeight];
+  if (![x, y, w, h].every(Number.isFinite)) [x, y, w, h] = [...DEFAULT_MARKER_SEARCH_REGION];
   w = Math.max(1, Math.min(frameWidth, Math.round(w)));
   h = Math.max(1, Math.min(frameHeight, Math.round(h)));
   x = Math.max(0, Math.min(frameWidth - w, Math.round(x)));
@@ -15,7 +16,7 @@ export function clampMarkerSearchRegion(region, frameWidth = 1280, frameHeight =
   return [x, y, w, h];
 }
 
-export function loadSavedMarkerSearchRegion(defaultRegion, frameWidth = 1280, frameHeight = 720) {
+export function loadSavedMarkerSearchRegion(defaultRegion = DEFAULT_MARKER_SEARCH_REGION, frameWidth = 1280, frameHeight = 720) {
   const fallback = clampMarkerSearchRegion(defaultRegion, frameWidth, frameHeight);
   if (typeof localStorage === 'undefined') return { region: fallback, source: 'default' };
   try {
@@ -28,7 +29,7 @@ export function loadSavedMarkerSearchRegion(defaultRegion, frameWidth = 1280, fr
   }
 }
 
-export function getMarkerSearchRegion(defaultRegion, frameWidth = 1280, frameHeight = 720) {
+export function getMarkerSearchRegion(defaultRegion = DEFAULT_MARKER_SEARCH_REGION, frameWidth = 1280, frameHeight = 720) {
   const preview = globalThis?.[PREVIEW_KEY];
   if (preview) return clampMarkerSearchRegion(preview, frameWidth, frameHeight);
   return loadSavedMarkerSearchRegion(defaultRegion, frameWidth, frameHeight).region;
